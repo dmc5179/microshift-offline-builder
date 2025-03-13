@@ -30,7 +30,7 @@ sudo composer-cli sources add fast-datapath.toml
 cp -f "${BLUEPRINT_TEMPLATE}" "${BLUEPRINT_FILE}"
 
 # Add in pull secret
-sudo mkdir /etc/osbuild-worker
+sudo mkdir /etc/osbuild-worker || true  # dir may exist already
 sudo cp "${SCRIPT_DIR}/pull-secret.json" /etc/osbuild-worker/pull-secret.json
 
 # Get OpenShift Release Images to add
@@ -44,7 +44,28 @@ sudo composer-cli blueprints push microshift-blueprint-v0.0.1.toml
 #sudo composer-cli blueprints depsolve microshift-build
 
 exit 0
+
+# Start composer build
 BUILDID=$(sudo composer-cli compose start-ostree --ref "rhel/9/$(uname -m)/edge" "${EDGE_CONTAINER_NAME}" edge-container | awk '/^Compose/ {print $2}')
 
+# Wait for composer build to finish
+command="sudo composer-cli compose status"
+echo "Waiting for blueprint ${EDGE_CONTAINER_NAME} build to finish building..."
+while [[ $($command | grep "$BUILDID" | grep "FINISHED" >/dev/null; echo $?) != "0" ]]
+do
+  if $command | grep "${BUILDID}" | grep "FAILED" ; then
+    echo "Image compose failed while running:"
+    exit 1
+  else
+    echo $($command | grep "${BUILDID}")
+  fi
+  sleep 20
+done
 
+sudo composer-cli compose image ${BUILDID}
+sudo chown $(whoami). ${BUILDID}-container.tar
+sudo chmod a+r ${BUILDID}-container.tar
+IMAGEID=$(cat < "./${BUILDID}-container.tar" | sudo podman load | grep -o -P '(?<=sha256[@:])[a-z0-9]*')
+sudo podman run -d --name=minimal-microshift-server -p 8080:8080 ${IMAGEID}
+#curl http://localhost:8080/repo/config
 

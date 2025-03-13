@@ -82,7 +82,3 @@ enabled = ["crio", "microshift", "podman"]
 [customizations.firewall]
 ports = ["22:tcp", "80:tcp", "443:tcp", "5353:udp", "6443:tcp", "30000-32767:tcp", "30000-32767:udp"]
 
-[[containers]]
-auth_file_path = "PATH_TO_PULL_SECRET"
-
-

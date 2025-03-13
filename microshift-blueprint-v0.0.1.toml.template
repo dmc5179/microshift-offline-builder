@@ -1,0 +1,88 @@
+name = "microshift-build"
+
+description = "Build an OSTree Microshift Image"
+version = "0.0.1"
+modules = []
+groups = []
+
+
+# MicroShift and dependencies
+
+[[packages]]
+name = "microshift"
+version = "*"
+
+[[packages]]
+name = "conntrack-tools"
+version = "*"
+
+[[packages]]
+name = "openshift-clients"
+version = "*"
+
+[[packages]]
+name = "podman"
+version = "*"
+
+
+# configuration management
+
+[[packages]]
+name = "git"
+version = "*"
+
+
+# troubleshooting tools
+
+[[packages]]
+name = "iputils"
+version = "*"
+
+[[packages]]
+name = "bind-utils"
+version = "*"
+
+[[packages]]
+name = "net-tools"
+version = "*"
+
+[[packages]]
+name = "iotop"
+version = "*"
+
+[[packages]]
+name = "curl"
+version = "*"
+
+[[packages]]
+name = "wget"
+version = "*"
+
+# other
+
+[[packages]]
+name = "redhat-release"
+version = "*"
+
+
+# customizations
+
+[customizations]
+
+[[customizations.user]]
+name = "redhat"
+description = "Default User"
+# Password: redhat
+password = "$6$yW34vZfc4uBobPza$bYVk5cZ5JM7CLBI1qOzdrexKRFn/zPgcnlbBqIgnb1sDFVOGzI/R9Tm/TqyJw5DnKSewK8D49185l3rJkBiHS1"
+groups = ["wheel"]
+
+[customizations.services]
+enabled = ["crio", "transmission.timer", "microshift", "podman"]
+
+[customizations.firewall]
+ports = ["22:tcp", "80:tcp", "443:tcp", "5353:udp", "6443:tcp", "30000-32767:tcp", "30000-32767:udp"]
+
+[[containers]]
+auth_file_path = "PATH_TO_PULL_SECRET"
+
+

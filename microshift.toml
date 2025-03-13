@@ -1,0 +1,8 @@
+id = "rhocp-4.18"
+name = "Microshift version 4.18"
+type = "yum-baseurl"
+url = "https://cdn.redhat.com/content/dist/layered/rhel9/x86_64/rhocp/4.18/os"
+check_gpg = true
+check_ssl = true
+system = false
+rhsm = true

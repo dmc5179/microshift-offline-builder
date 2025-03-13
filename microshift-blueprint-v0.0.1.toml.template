@@ -77,7 +77,7 @@ password = "$6$yW34vZfc4uBobPza$bYVk5cZ5JM7CLBI1qOzdrexKRFn/zPgcnlbBqIgnb1sDFVOG
 groups = ["wheel"]
 
 [customizations.services]
-enabled = ["crio", "transmission.timer", "microshift", "podman"]
+enabled = ["crio", "microshift", "podman"]
 
 [customizations.firewall]
 ports = ["22:tcp", "80:tcp", "443:tcp", "5353:udp", "6443:tcp", "30000-32767:tcp", "30000-32767:udp"]

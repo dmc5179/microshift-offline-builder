@@ -31,6 +31,12 @@ version = "*"
 name = "git"
 version = "*"
 
+# Additional trust bundles
+#[[customizations.directories]]
+#path = "/etc/pki/ca-trust/source/anchors"
+#[[customizations.files]]
+#path = "/etc/pki/ca-trust/source/anchors/cert1.pem"
+#data = "<value>"
 
 # troubleshooting tools
 

@@ -45,8 +45,12 @@ sudo composer-cli blueprints push microshift-blueprint-v0.0.1.toml
 
 exit 0
 
-# Start composer build
-BUILDID=$(sudo composer-cli compose start-ostree --ref "rhel/9/$(uname -m)/edge" "${EDGE_CONTAINER_NAME}" edge-container | awk '/^Compose/ {print $2}')
+# Start composer container build
+#BUILDID=$(sudo composer-cli compose start-ostree --ref "rhel/9/$(uname -m)/edge" "${EDGE_CONTAINER_NAME}" edge-container | awk '/^Compose/ {print $2}')
+# Start composer ISO build
+BUILDID=$(sudo composer-cli compose start-ostree --url http://localhost:8085/repo/ --ref "rhel/9/$(uname -m)/edge" microshift-installer edge-installer | awk '{print $2}')
+
+exit 0
 
 # Wait for composer build to finish
 command="sudo composer-cli compose status"
@@ -55,6 +59,10 @@ while [[ $($command | grep "$BUILDID" | grep "FINISHED" >/dev/null; echo $?) != 
 do
   if $command | grep "${BUILDID}" | grep "FAILED" ; then
     echo "Image compose failed while running:"
+    echo "Extracting logs to microshift-build-logs.tar"
+    rm -f microshift-build-logs.tar
+    sudo composer-cli compose logs $BUILDID --filename microshift-build-logs.tar
+    sudo chmod 0644 microshift-build-logs.tar
     exit 1
   else
     echo $($command | grep "${BUILDID}")
@@ -62,10 +70,15 @@ do
   sleep 20
 done
 
+# For container build
+#sudo composer-cli compose image ${BUILDID}
+#sudo chown $(whoami). ${BUILDID}-container.tar
+#sudo chmod a+r ${BUILDID}-container.tar
+#IMAGEID=$(cat < "./${BUILDID}-container.tar" | sudo podman load | grep -o -P '(?<=sha256[@:])[a-z0-9]*')
+#sudo podman run -d --name=minimal-microshift-server -p 8080:8080 ${IMAGEID}
+
+# For ISO Build
 sudo composer-cli compose image ${BUILDID}
-sudo chown $(whoami). ${BUILDID}-container.tar
-sudo chmod a+r ${BUILDID}-container.tar
-IMAGEID=$(cat < "./${BUILDID}-container.tar" | sudo podman load | grep -o -P '(?<=sha256[@:])[a-z0-9]*')
-sudo podman run -d --name=minimal-microshift-server -p 8080:8080 ${IMAGEID}
-#curl http://localhost:8080/repo/config
+sudo chown $(whoami). ${BUILDID}-installer.iso
+sudo chmod a+r ${BUILDID}-installer.iso
 
